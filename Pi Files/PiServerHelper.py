@@ -1,6 +1,7 @@
 from MoistureSensors import MoistureSensor
 import json, codecs
 from bson import json_util
+import operator
 import datetime
 
 class PiServerHelper(object):
@@ -20,18 +21,17 @@ class PiServerHelper(object):
 
         Sensor = self.sensorMap[id]
         Sensor.readings.append(moistureReading)
-        Sensor.timestamps.append(int(datetime.datetime.now().strftime("%Y%m%d%H%M%S")))
+        Sensor.timestamps.append(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         Sensor.numReadings += 1
 
     def readingsToJson(self):
         sensorData = {}
         for key in self.sensorMap:
-            sensorData[key] = json.dumps(self.sensorMap[key].__dict__)
-        f = open('log.txt', 'w')
-        a = sensorData[0]
-        f.write(a)
-        print json.dumps(a)
-        f.close()
+            sensorData[key] = self.sensorMap[key].__dict__
+        #f = open('log.txt', 'w')
+        a = sensorData
+        #f.write(a)
+        #f.close()
         return a
 
 
@@ -41,3 +41,19 @@ class PiServerHelper(object):
     def sendBrokenSensor(self):
         return 1
 
+    def findMode(self, freqMap):
+       return max(freqMap.iteritems(), key=operator.itemgetter(1))[0]
+
+    def concatOutput(self, process):
+        for line in process.stdout:
+            if line[0] == 'o':
+                line = line.translate(None, ':')
+                # print (line)
+                actual = line[32:-1]
+                print(actual)
+                actual = actual.decode("hex")
+                output = output + actual
+                # print(actual)
+
+        output = output.translate(None, '\0')
+        return output

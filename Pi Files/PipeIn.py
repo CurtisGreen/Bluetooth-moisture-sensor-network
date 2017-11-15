@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import sys
+import PiServerHelper
 from gattlib import GATTRequester, DiscoveryService
  
 
@@ -41,7 +42,6 @@ for i in range(0,len(output)):
         index = i+4
         print(output[i+1:index])
         size = int(output[i+1:index])
-        print(size)
         readings.append(output[index:index+size])
         print(output[index:index+size])
         i = index+size

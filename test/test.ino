@@ -43,8 +43,8 @@ bool compareDataRx(const char * value){
 }
 
 void loop() {
-  //Serial.write("hello");
-  retrieveDataRx();
+  Serial.write(Serial.read());
+  //retrieveDataRx();
 }
 
 
