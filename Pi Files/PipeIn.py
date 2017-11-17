@@ -1,24 +1,33 @@
 from __future__ import print_function
 
 import sys
-import PiServerHelper
+from PiServerHelper import PiServerHelper
 from gattlib import GATTRequester, DiscoveryService
- 
+import subprocess 
+import time
 
-service = DiscoveryService("hci0")
-devices = service.discover(4)
-
+try:
+    service = DiscoveryService("hci0")
+    devices = service.discover(4)
+    helper = PiServerHelper()
+except:
+    print("ERROR")
 addr = ''
+while addr == '':
+    #time.sleep(1)
+    for address, name in list(devices.items()):
+        print("name: {}, address: {}".format(name, address))
+        print(name),
+        if name[:5] == "Bluno":
+            addr = address
+            print("got addr " + addr)
+            
+            
 
-for address, name in list(devices.items()):
-    #print("name: {}, address: {}".format(name, address))
-    #print(name),
-    if name[:5] == "Bluno":
-        addr = address
-
-import subprocess
-proc = subprocess.Popen(['python', 'write.py', addr],stdout=subprocess.PIPE)
-
+try:
+    proc = subprocess.Popen(['python', 'write.py', addr],stdout=subprocess.PIPE)
+except:
+    print("HELLO")
 output = ''
 
 for line in proc.stdout:
@@ -40,11 +49,13 @@ mode = {}
 for i in range(0,len(output)):
     if output[i] == 's':
         index = i+4
-        print(output[i+1:index])
         size = int(output[i+1:index])
-        readings.append(output[index:index+size])
-        print(output[index:index+size])
+        reading = output[index:index+size]
+        readings.append(reading)
         i = index+size
+        if reading not in mode:
+                mode[reading] = 0
+        mode[reading] = mode[reading] + 1
         
-        
+print('mode'+helper.findMode(mode))
 print(readings)

@@ -42,7 +42,10 @@ class PiServerHelper(object):
         return 1
 
     def findMode(self, freqMap):
-       return max(freqMap.iteritems(), key=operator.itemgetter(1))[0]
+        try:
+           return max(freqMap.iteritems(), key=operator.itemgetter(1))[0]
+        except:
+            return -1
 
     def concatOutput(self, process):
         for line in process.stdout:
