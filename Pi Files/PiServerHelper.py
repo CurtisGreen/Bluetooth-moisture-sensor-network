@@ -28,11 +28,7 @@ class PiServerHelper(object):
         sensorData = {}
         for key in self.sensorMap:
             sensorData[key] = self.sensorMap[key].__dict__
-        #f = open('log.txt', 'w')
-        a = sensorData
-        #f.write(a)
-        #f.close()
-        return a
+        return sensorData
 
 
     def sendReadingsToServer(self):
@@ -60,3 +56,20 @@ class PiServerHelper(object):
 
         output = output.translate(None, '\0')
         return output
+
+    def parseOutput(self, toParse):
+        readings = []
+        mode = {}
+
+        for i in range(0, len(toParse)):
+            if toParse[i] == 's':
+                index = i + 4
+                size = int(toParse[i + 1:index])
+                reading = toParse[index:index + size]
+                readings.append(reading)
+                i = index + size
+                if reading not in mode:
+                    mode[reading] = 0
+                mode[reading] = mode[reading] + 1
+
+        return self.findMode(mode)
