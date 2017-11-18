@@ -15,6 +15,7 @@ class Reader(object):
         self.requester = GATTRequester(address, False)
         self.connect()
         self.send_data()
+        #self.requester.disconnect()
 
     def connect(self):
         print("Connecting...", end=' ')
@@ -35,3 +36,4 @@ if __name__ == '__main__':
 
     Reader(sys.argv[1])
     print("Done.")
+

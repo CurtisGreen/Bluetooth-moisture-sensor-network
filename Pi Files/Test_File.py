@@ -23,11 +23,11 @@ print(helper.findMode(mode))
 #    print "key: %s , value: %s" % (key, helper.sensorMap[key].readings)
 
 
-# values = helper.readingsToJson()
-# print(values);
-# print("______")
-# data = urllib.urlencode(values)
-# req = urllib2.Request(url, data)
-# response = urllib2.urlopen(req)
-# the_page = response.read()
-# print(the_page)
+values = helper.readingsToJson()
+print(values);
+print("______")
+data = urllib.urlencode(values)
+req = urllib2.Request(url, data)
+response = urllib2.urlopen(req)
+the_page = response.read()
+print(the_page)

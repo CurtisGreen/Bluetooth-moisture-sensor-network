@@ -1,35 +1,64 @@
 from __future__ import print_function
-
-import sys
 from PiServerHelper import PiServerHelper
 from gattlib import GATTRequester, DiscoveryService
-import subprocess 
-import time
+from random import randint
+import sys, os
+import urllib
+import urllib2
 
+import sys, subprocess, time, signal
+
+
+
+def destroy():
+    print('destroying')
 try:
     service = DiscoveryService("hci0")
     devices = service.discover(4)
     helper = PiServerHelper()
+    url = 'http://192.168.0.101:5000/product/add'  # Set destination URL here
 except:
     print("ERROR")
-addr = ''
-while addr == '':
-    #time.sleep(1)
+
+
+while True:
+    time.sleep(1)
+    addresses = []
     for address, name in list(devices.items()):
-        print("name: {}, address: {}".format(name, address))
-        print(name),
         if name[:5] == "Bluno":
-            addr = address
-            print("got addr " + addr)
-            
-            
+            addresses.append(address)
 
-try:
-    proc = subprocess.Popen(['python', 'write.py', addr], stdout=subprocess.PIPE)
-except:
-    print("HELLO")
+    if addresses:
+        try:
+            addr = addresses[randint(0, len(addresses)-1)]
+            proc = subprocess.Popen(['python', 'write.py', addr], stdout=subprocess.PIPE)
+            output = helper.concatOutput(proc)
+            parsed = helper.parseOutput(output)
+            print(addr)
+            print(parsed)
+            if parsed != -1:
+                helper.insertReading(addr, parsed)
 
-output = helper.concatOutput(proc)
-print(output)
-mode = helper.findMode(output)
-print(mode)
+            if helper.numReadings == 10:
+                values = helper.readingsToJson()
+                print(values);
+                print("______")
+                data = urllib.urlencode(values)
+                req = urllib2.Request(url, data)
+                response = urllib2.urlopen(req)
+                the_page = response.read()
+                print(the_page)
+
+        except KeyboardInterrupt:
+            print("stopping cause of keyboard")
+            time.sleep(1)
+            destroy()
+        except TypeError:
+            print
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+
+
+

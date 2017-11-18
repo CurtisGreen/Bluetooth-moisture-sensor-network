@@ -13,6 +13,7 @@ class PiServerHelper(object):
         self.numSensors = 5  # number of sensors
         self.outsideMode = False  # is the cluster outside
         self.temperature = 0
+        self.numReadings = 0
 
     def insertReading(self, id, moistureReading):
         if id not in self.sensorMap:
@@ -23,6 +24,11 @@ class PiServerHelper(object):
         Sensor.readings.append(moistureReading)
         Sensor.timestamps.append(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         Sensor.numReadings += 1
+        self.numReadings += 1
+
+    def clearReadings(self):
+        sensorMap = {}
+        numReadings = 0
 
     def readingsToJson(self):
         sensorData = {}
@@ -44,15 +50,13 @@ class PiServerHelper(object):
             return -1
 
     def concatOutput(self, process):
+        output = ''
         for line in process.stdout:
             if line[0] == 'o':
                 line = line.translate(None, ':')
-                # print (line)
                 actual = line[32:-1]
-                print(actual)
                 actual = actual.decode("hex")
                 output = output + actual
-                # print(actual)
 
         output = output.translate(None, '\0')
         return output
@@ -60,7 +64,6 @@ class PiServerHelper(object):
     def parseOutput(self, toParse):
         readings = []
         mode = {}
-
         for i in range(0, len(toParse)):
             if toParse[i] == 's':
                 index = i + 4
@@ -70,6 +73,6 @@ class PiServerHelper(object):
                 i = index + size
                 if reading not in mode:
                     mode[reading] = 0
-                mode[reading] = mode[reading] + 1
+                    mode[reading] = mode[reading] + 1
 
         return self.findMode(mode)
