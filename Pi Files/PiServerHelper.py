@@ -27,8 +27,8 @@ class PiServerHelper(object):
         self.numReadings += 1
 
     def clearReadings(self):
-        sensorMap = {}
-        numReadings = 0
+        self.sensorMap.clear
+        self.numReadings = 0
 
     def readingsToJson(self):
         sensorData = {}

@@ -12,34 +12,40 @@ import sys, subprocess, time, signal
 
 def destroy():
     print('destroying')
+
+
+
+#####################   SETUP   #####################
 try:
     service = DiscoveryService("hci0")
     devices = service.discover(4)
     helper = PiServerHelper()
     url = 'http://192.168.0.101:5000/product/add'  # Set destination URL here
+    LogIndex = 0
 except:
     print("ERROR")
 
 
 while True:
-    time.sleep(1)
     addresses = []
     for address, name in list(devices.items()):
         if name[:5] == "Bluno":
             addresses.append(address)
-
+        print(addresses)
     if addresses:
         try:
             addr = addresses[randint(0, len(addresses)-1)]
             proc = subprocess.Popen(['python', 'write.py', addr], stdout=subprocess.PIPE)
             output = helper.concatOutput(proc)
             parsed = helper.parseOutput(output)
-            print(addr)
-            print(parsed)
+        
+            print(output)
             if parsed != -1:
                 helper.insertReading(addr, parsed)
+                print(addr)
+                print(parsed)
 
-            if helper.numReadings == 10:
+            if helper.numReadings == 10000:
                 values = helper.readingsToJson()
                 print(values);
                 print("______")
