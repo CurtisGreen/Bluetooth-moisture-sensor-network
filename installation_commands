@@ -1,0 +1,21 @@
+sudo apt-get install pi-bluetooth
+sudo apt-get install bluetooth bluez blueman
+sudo apt-get update
+sudo apt-get install python-bluez
+sudo apt-get install libglib2.0-dev
+sudo apt-get install libbluetooth-dev
+sudo apt-get install libboost-python-dev
+sudo apt-get purge python-bson
+sudo apt-get install python-bson
+sudo pip uninstall bson
+sudo pip uninstall pymongo
+sudo pip install pymongo
+sudo pip install gattlib
+pip install —upgrade setuptools
+cd pygattlib/examples
+sudo reboot
+Turn bluno on
+Open gui and pair with bluno
+Go to folder
+git clone https://github.com/matthewelse/pygattlib.git
+Change ports in write.py and read_async.py to 0x25
