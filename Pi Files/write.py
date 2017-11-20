@@ -25,15 +25,13 @@ class Reader(object):
         print("OK!")
 
     def send_data(self):
-        #self.requester.write_by_handle(0x25, str(bytearray([20])))
-        #send = ['t', 'r', 'i']
         self.requester.write_by_handle(0x25, "number")
         
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Usage: {} <addr>".format(sys.argv[0]))
         sys.exit(1)
-
-    Reader(sys.argv[1])
+    if len(sys.argv) == 2:
+        Reader(sys.argv[1])
     print("Done.")
 

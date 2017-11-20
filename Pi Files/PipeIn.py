@@ -31,19 +31,20 @@ while True:
     for address, name in list(devices.items()):
         if name[:5] == "Bluno":
             addresses.append(address)
-        print(addresses)
+        #print(addresses)
     if addresses:
         try:
             addr = addresses[randint(0, len(addresses)-1)]
             proc = subprocess.Popen(['python', 'write.py', addr], stdout=subprocess.PIPE)
             output = helper.concatOutput(proc)
             parsed = helper.parseOutput(output)
-        
+            
+            #print(addr);
             print(output)
             if parsed != -1:
                 helper.insertReading(addr, parsed)
                 print(addr)
-                print(parsed)
+                print(parsed) 
 
             if helper.numReadings == 10000:
                 values = helper.readingsToJson()
