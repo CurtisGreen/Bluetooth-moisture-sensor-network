@@ -5,17 +5,20 @@ sudo apt-get install python-bluez
 sudo apt-get install libglib2.0-dev
 sudo apt-get install libbluetooth-dev
 sudo apt-get install libboost-python-dev
+sudo apt-get install libboost-thread-dev
 sudo apt-get install libboost-dev
 sudo apt-get purge python-bson
 sudo apt-get install python-bson
+sudo python setup.py install
+sudo pip install gattlib
 sudo pip uninstall bson
 sudo pip uninstall pymongo
 sudo pip install pymongo
-sudo pip install gattlib
 sudo pip install -—upgrade setuptools
 cd pygattlib/examples
 sudo reboot
 Turn bluno on
 Open gui and pair with bluno
-Go to folder
-git clone https://github.com/matthewelse/pygattlib.git
+
+//git clone https://github.com/matthewelse/pygattlib.git //not necessary
+//cd pygattlib
