@@ -6,16 +6,23 @@
 
 from __future__ import print_function
 
-import sys
+import sys, os
 from gattlib import GATTRequester
 
 
 class Reader(object):
     def __init__(self, address):
-        self.requester = GATTRequester(address, False)
-        self.connect()
-        self.send_data()
-        #self.requester.disconnect()
+        try:
+            self.requester = GATTRequester(address, False)
+            self.connect()
+            if self.requester.is_connected():
+                self.send_data()
+                sys.stdout.flush()
+                self.requester.disconnect()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
 
     def connect(self):
         print("Connecting...", end=' ')
@@ -25,9 +32,11 @@ class Reader(object):
         print("OK!")
 
     def send_data(self):
-        #self.requester.write_by_handle(0x25, str(bytearray([20])))
+        #test123 = self.requester.read_by_handle(0x25)[0]
+        #print(test123)
         #send = ['t', 'r', 'i']
         self.requester.write_by_handle(0x25, "number")
+
         
 if __name__ == '__main__':
     if len(sys.argv) < 2:

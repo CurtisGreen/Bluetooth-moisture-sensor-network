@@ -4,6 +4,8 @@ from bson import json_util
 import operator
 import datetime
 import time
+import urllib
+import urllib2
 
 class PiServerHelper(object):
     def __init__(self):
@@ -15,7 +17,43 @@ class PiServerHelper(object):
         self.outsideMode = False  # is the cluster outside
         self.temperature = 0
         self.numReadings = 0
-        self.timeToWait = 8
+        self.timeToWait = 45
+        self.clusterName = "ORIGINAL_PI"
+        urlName = 'http://192.168.0.108:3000/'
+        self.urls = {}
+        self.urls["head"] = urlName+'cluster_heads.json'
+        self.urls["sensors"] = urlName+'moisture_sensors.json'
+        self.urls["readings"] = urlName+'moisture_readings.json'
+        self.addressSet = set()
+        
+        
+    def Setup(self, filename, alreadySetup):
+        lines = [line.rstrip('\n\r') for line in open(filename)]
+        addresses = []
+        self.addressSet = set()
+        names = []
+        for line in lines[1:]:
+            info = line.split(',')
+            self.addressSet.add(info[0])
+            names.append(info[1])
+        addresses = list(self.addressSet)
+
+        payload = {"bluetooth_address":addresses, "name":names}
+        print (payload)
+        self.clusterName = lines[0]
+        if not alreadySetup:
+            self.initializeCluster()
+            self.initializeAddresses(payload)        
+
+    def readable(self, address):
+        now = time.mktime(datetime.datetime.now().timetuple())
+        if address not in self.sensorMap:
+            #print("returning true in readable")
+            return True;        
+        last = time.mktime(self.sensorMap[address].lastTime.timetuple())
+        diff = now-last
+        #print(diff)
+        return diff > self.timeToWait 
 
     def insertReading(self, id, moistureReading):
         if id not in self.sensorMap:
@@ -30,6 +68,7 @@ class PiServerHelper(object):
         Sensor.numReadings += 1
         self.numReadings += 1
 
+
     def clearReadings(self):
         self.sensorMap.clear
         self.numReadings = 0
@@ -39,17 +78,48 @@ class PiServerHelper(object):
         for key in self.sensorMap:
             sensorData[key] = self.sensorMap[key].__dict__
         return sensorData
-    
-    def timeToRead(self, address):
-        now = time.mktime(datetime.datetime.now().timetuple())
-        if address not in self.sensorMap:
-            return True;        
-        last = time.mktime(self.sensorMap[address].lastTime.timetuple())
-        diff = now-last
-        return diff > self.timeToWait
 
-    def sendReadingsToServer(self):
-        return 1
+    def initializeCluster(self):
+        clusters = {}
+        clusters["cluster_head_name"] = self.clusterName
+        data = urllib.urlencode(clusters)
+        req = urllib2.Request(self.urls["head"], data)
+        try:
+            response = urllib2.urlopen(req, timeout = 5)
+            the_page = response.read()
+            print(the_page)
+        except:
+            print("Error Initializing Cluster")
+
+    def initializeAddresses(self, addresses):
+        try:
+            addresses["cluster_head_name"] = self.clusterName
+            print(addresses)
+            data = urllib.urlencode(addresses)
+            req = urllib2.Request(self.urls["sensors"], data)
+            response = urllib2.urlopen(req, timeout = 5)
+            the_page = response.read()
+            print(the_page)
+        except:
+            print("Error Initializing Addresses")
+
+    def sendReading(self):
+        values = {}
+        values = self.readingsToJson()
+
+        for key in values:
+            payload = values[key]
+            payload["cluster_head_name"] = self.clusterName
+            try:
+                data = urllib.urlencode(payload)
+                req = urllib2.Request(self.urls["readings"], data)
+                response = urllib2.urlopen(req, timeout = 5)
+                the_page = response.read()
+                print(the_page)
+                return the_page == "1"
+            except:
+                print("Error Sending Readings")
+                return False
 
     def sendBrokenSensor(self):
         return 1
