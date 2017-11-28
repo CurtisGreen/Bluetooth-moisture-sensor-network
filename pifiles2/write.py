@@ -35,7 +35,7 @@ class Reader(object):
         #test123 = self.requester.read_by_handle(0x25)[0]
         #print(test123)
         #send = ['t', 'r', 'i']
-        self.requester.write_by_handle(0x25, "number")
+        self.requester.write_by_handle(0x25, "OK")
 
         
 if __name__ == '__main__':

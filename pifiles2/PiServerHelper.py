@@ -19,7 +19,7 @@ class PiServerHelper(object):
         self.numReadings = 0
         self.timeToWait = 45
         self.clusterName = "ORIGINAL_PI"
-        urlName = 'http://192.168.0.108:3000/'
+        urlName = 'http://moisty.herokuapp.com/'
         self.urls = {}
         self.urls["head"] = urlName+'cluster_heads.json'
         self.urls["sensors"] = urlName+'moisture_sensors.json'
@@ -39,7 +39,7 @@ class PiServerHelper(object):
         addresses = list(self.addressSet)
 
         payload = {"bluetooth_address":addresses, "name":names}
-        print (payload)
+  
         self.clusterName = lines[0]
         if not alreadySetup:
             self.initializeCluster()
@@ -69,14 +69,15 @@ class PiServerHelper(object):
         self.numReadings += 1
 
 
-    def clearReadings(self):
-        self.sensorMap.clear
-        self.numReadings = 0
+    def clearReadings(self, address):
+        self.numReadings = self.numReadings - self.sensorMap[address].clear()
+
 
     def readingsToJson(self):
         sensorData = {}
         for key in self.sensorMap:
-            sensorData[key] = self.sensorMap[key].__dict__
+            if(self.sensorMap[key].numReadings != 0):
+                sensorData[key] = self.sensorMap[key].__dict__
         return sensorData
 
     def initializeCluster(self):
@@ -94,7 +95,6 @@ class PiServerHelper(object):
     def initializeAddresses(self, addresses):
         try:
             addresses["cluster_head_name"] = self.clusterName
-            print(addresses)
             data = urllib.urlencode(addresses)
             req = urllib2.Request(self.urls["sensors"], data)
             response = urllib2.urlopen(req, timeout = 5)
@@ -106,20 +106,29 @@ class PiServerHelper(object):
     def sendReading(self):
         values = {}
         values = self.readingsToJson()
-
+        sent = False
         for key in values:
             payload = values[key]
             payload["cluster_head_name"] = self.clusterName
+            print(payload)
             try:
                 data = urllib.urlencode(payload)
                 req = urllib2.Request(self.urls["readings"], data)
                 response = urllib2.urlopen(req, timeout = 5)
                 the_page = response.read()
-                print(the_page)
-                return the_page == "1"
+                print("line 120" + the_page)
+                if the_page != "1":
+                    print("line 122")
+                    return False
+                else:
+                    print("line 125")
+                    print(values[key])
+                    self.clearReadings(values[key]["id"])
             except:
-                print("Error Sending Readings")
+                logger.error('Failed to do something: ' + str(e))
                 return False
+        return True
+            
 
     def sendBrokenSensor(self):
         return 1

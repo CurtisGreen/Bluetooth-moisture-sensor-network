@@ -20,7 +20,7 @@ try:
     service = DiscoveryService("hci0")
     devices = service.discover(4)
     helper = PiServerHelper()
-    helper.Setup("Settings.txt", True)
+    helper.Setup("Settings.txt", False)
 except Exception as e:
     exc_type, exc_obj, exc_tb = sys.exc_info()
     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -50,7 +50,6 @@ while True:
                     
                     if(helper.sendReading()):
                         print("sending reading")
-                        helper.clearReadings()
 
         except KeyboardInterrupt:
             print("stopping cause of keyboard")
