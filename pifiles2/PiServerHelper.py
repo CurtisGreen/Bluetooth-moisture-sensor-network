@@ -17,7 +17,7 @@ class PiServerHelper(object):
         self.outsideMode = False  # is the cluster outside
         self.temperature = 0
         self.numReadings = 0
-        self.timeToWait = 45
+        self.defaultTimeToWait = 45
         self.clusterName = "ORIGINAL_PI"
         urlName = 'http://moisty.herokuapp.com/'
         self.urls = {}
