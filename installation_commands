@@ -15,8 +15,11 @@ sudo pip uninstall bson
 sudo pip uninstall pymongo
 sudo pip install pymongo
 sudo pip install -—upgrade setuptools
-cd pygattlib/examples
 sudo reboot
+
+//open command line again
+
+cd pygattlib/examples
 Turn bluno on
 Open gui and pair with bluno
 
